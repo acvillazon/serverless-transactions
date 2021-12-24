@@ -1,0 +1,46 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+//datasource db {
+//  provider = "sqlite"
+//  url      = "file:./dev.db"
+//}
+
+model User {
+  id Int  @id @default(autoincrement())
+  email   String   @unique
+  password String
+  createdAt DateTime @default(now())
+  profile Profile?
+}
+
+model Profile {
+  id  Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  name    String?
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+  transactionsO Transaction[] @relation("origin")
+  transactions Transaction[] @relation("target")
+}
+
+model Transaction {
+  id  Int @id @default(autoincrement())
+  userTargetId Int?
+  userOriginId Int?
+  userTarget Profile? @relation("target", fields: [userTargetId], references: [id])
+  userOrigin Profile? @relation("origin", fields: [userOriginId], references: [id])
+  createdAt DateTime @default(now())
+  description String?
+  name String?
+  amount Int
+}
